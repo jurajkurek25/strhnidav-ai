@@ -48,7 +48,9 @@ Supabase (auth, profily, sessions, kredity)        Stripe (predplatné, kredity,
 ## Nasadenie na ai.strhnidav.sk (CloudPanel)
 
 **1. V CloudPanel** pridaj stránku typu **Node.js**: doména `ai.strhnidav.sk`, Node.js 22,
-App Port `3000`. Zapni SSL (Let's Encrypt).
+App Port napr. `3100` (musí byť voľný a rovnaký ako `PORT` v `.env.local`). Zapni SSL (Let's Encrypt).
+
+Všetko na serveri spúšťaj ako používateľ stránky (`su - strhnidav-ai`), nie ako root.
 
 **2. Prvé nasadenie** (cez SSH ako používateľ stránky):
 
