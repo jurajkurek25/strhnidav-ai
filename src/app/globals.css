@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/* Dizajn Strhni Dav – tokeny zo strhnidav.sk */
+@theme inline {
+  --color-bg: #0b0a08;
+  --color-bg-alt: #141110;
+  --color-card: #1b1712;
+  --color-line: rgba(201, 161, 48, 0.16);
+  --color-gold: #c9a130;
+  --color-gold-bright: #e8c468;
+  --color-cream: #ece5d6;
+  --color-muted: #8f8779;
+  --color-wine: #7a3030;
+  --color-wine-soft: #d98d8d;
+  --color-good: #4caf7d;
+
+  --font-display: var(--font-fraunces), serif;
+  --font-label: var(--font-big-shoulders), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-bright);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+h1 em,
+h2 em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-gold-bright);
+}
+
+/* Jemná zrnitá textúra cez celú stránku */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-gold);
+  color: var(--color-bg);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 22px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover {
+  background: var(--color-gold-bright);
+  transform: translateY(-1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-cream);
+  border-color: var(--color-line);
+}
+.btn-ghost:hover {
+  background: var(--color-card);
+  border-color: var(--color-gold);
+}
+.btn-danger {
+  background: var(--color-wine);
+  color: var(--color-cream);
+}
+.btn-danger:hover {
+  background: #8f3a3a;
+}
+.btn-sm {
+  padding: 9px 16px;
+  font-size: 13.5px;
+}
+
+.eyebrow {
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--color-gold);
+}
+
+.label {
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+}
+
+.badge {
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-gold);
+  padding: 5px 10px;
+  border-radius: 2px;
+}
+
+.field {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-line);
+  color: var(--color-cream);
+  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: 2px;
+  width: 100%;
+  outline: none;
+}
+.field::placeholder {
+  color: var(--color-muted);
+}
+.field:focus {
+  border-color: var(--color-gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+  }
+}
