@@ -2,10 +2,29 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getScenario } from "@/lib/scenarios";
-import { evaluateSession, type TranscriptEntry } from "@/lib/gemini";
+import { evaluateSession, liveCostUsd, type LiveUsage, type TranscriptEntry } from "@/lib/gemini";
 
 // Pod toto množstvo reči používateľa nemá vyhodnotenie zmysel
 const MIN_USER_WORDS = 15;
+
+// Spotrebu hlási prehliadač – iba na analytiku nákladov, nie na účtovanie
+function parseUsage(raw: unknown): LiveUsage | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const counts = (v: unknown) =>
+    Object.fromEntries(
+      Object.entries(v && typeof v === "object" ? v : {})
+        .filter(([k, n]) => k.length <= 32 && Number.isFinite(n) && (n as number) >= 0)
+        .slice(0, 10),
+    ) as Record<string, number>;
+  const num = (v: unknown) => (Number.isFinite(v) && (v as number) >= 0 ? Math.floor(v as number) : 0);
+  return {
+    turns: num(r.turns),
+    input: counts(r.input),
+    output: counts(r.output),
+    max_prompt_tokens: num(r.max_prompt_tokens),
+  };
+}
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
@@ -37,6 +56,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (error || !session) {
     return NextResponse.json({ error: "Session sa nepodarilo ukončiť" }, { status: 500 });
   }
+
+  const usage = existing.status === "active" ? parseUsage(body.usage) : null;
+  if (usage) {
+    await admin
+      .from("training_sessions")
+      .update({ live_usage: usage, live_cost_usd: liveCostUsd(usage) })
+      .eq("id", id);
+  }
   // Neúspešné vyhodnotenie sa dá zopakovať
   if (session.evaluation && !session.evaluation.failed) return NextResponse.json({ ok: true });
 
@@ -64,7 +91,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(5);
 
   try {
-    const evaluation = await evaluateSession({
+    const { evaluation, usage: evalUsage, costUsd } = await evaluateSession({
       scenario,
       difficulty: session.difficulty,
       customContext: session.custom_context,
@@ -73,7 +100,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
     await admin
       .from("training_sessions")
-      .update({ evaluation, overall_score: evaluation.overall_score })
+      .update({
+        evaluation,
+        overall_score: evaluation.overall_score,
+        eval_usage: evalUsage,
+        eval_cost_usd: costUsd,
+      })
       .eq("id", id);
   } catch (e) {
     console.error(e);

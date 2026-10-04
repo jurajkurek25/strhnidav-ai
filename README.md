@@ -33,7 +33,7 @@ Supabase (auth, profily, sessions, kredity)        Stripe (predplatné, kredity,
 
 1. `npm install`
 2. Skopíruj `.env.example` do `.env.local` a vyplň hodnoty.
-3. **Supabase:** spusti `supabase/migrations/0001_init.sql` (SQL Editor alebo `supabase db push`).
+3. **Supabase:** spusti migrácie zo `supabase/migrations/` v poradí (SQL Editor alebo `supabase db push`).
    V Authentication → URL Configuration pridaj `http://localhost:3000/auth/callback`
    (a produkčnú URL) do Redirect URLs.
 4. **Stripe:**
@@ -44,6 +44,23 @@ Supabase (auth, profily, sessions, kredity)        Stripe (predplatné, kredity,
      `customer.subscription.updated`, `customer.subscription.deleted`.
      Lokálne: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 5. `npm run dev` a otvor http://localhost:3000 (mikrofón funguje na `localhost` alebo cez HTTPS).
+
+## Meranie nákladov
+
+Ku každej session sa ukladá spotreba tokenov z Gemini Live (`live_usage`, `live_cost_usd`)
+a z vyhodnotenia (`eval_usage`, `eval_cost_usd`). Prehľad v Supabase SQL Editore:
+
+```sql
+-- náklad na používateľa a mesiac, vrátane ceny za minútu
+select * from monthly_costs order by month desc, cost_usd desc;
+
+-- rastie najväčší prompt s dĺžkou rozhovoru? → Gemini účtuje aj kontext
+select duration_seconds, live_usage->'max_prompt_tokens' as max_prompt, live_cost_usd
+from training_sessions where live_usage is not null order by duration_seconds;
+```
+
+Spotrebu Live API hlási prehliadač (spojenie ide priamo na Gemini), preto slúži na analytiku,
+nie na účtovanie – čas sa účtuje vždy na serveri. Ceny za tokeny sú v `src/lib/gemini.ts`.
 
 ## Úpravy
 

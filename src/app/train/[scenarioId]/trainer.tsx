@@ -6,6 +6,12 @@ import { GoogleGenAI, Modality, type LiveServerMessage, type Session } from "@go
 import { createPlayer, startMicrophone } from "@/lib/live-audio";
 
 type Entry = { role: "user" | "ai"; text: string };
+type Usage = {
+  turns: number;
+  input: Record<string, number>;
+  output: Record<string, number>;
+  max_prompt_tokens: number;
+};
 type Phase = "setup" | "connecting" | "live" | "evaluating";
 
 const DIFFICULTY_OPTIONS = [
@@ -40,6 +46,7 @@ export function Trainer({
   const [muted, setMuted] = useState(false);
 
   const transcriptRef = useRef<Entry[]>([]);
+  const usageRef = useRef<Usage>({ turns: 0, input: {}, output: {}, max_prompt_tokens: 0 });
   const sessionIdRef = useRef<string | null>(null);
   const liveRef = useRef<Session | null>(null);
   const micRef = useRef<Awaited<ReturnType<typeof startMicrophone>> | null>(null);
@@ -65,6 +72,21 @@ export function Trainer({
     if (audio) playerRef.current?.play(audio);
     addText("user", content?.inputTranscription?.text);
     addText("ai", content?.outputTranscription?.text);
+    // Spotreba tokenov – Gemini ju posiela po každej výmene
+    const um = msg.usageMetadata;
+    if (um) {
+      const u = usageRef.current;
+      u.turns++;
+      u.max_prompt_tokens = Math.max(u.max_prompt_tokens, um.promptTokenCount ?? 0);
+      for (const d of um.promptTokensDetails ?? []) {
+        const m = d.modality ?? "UNKNOWN";
+        u.input[m] = (u.input[m] ?? 0) + (d.tokenCount ?? 0);
+      }
+      for (const d of um.responseTokensDetails ?? []) {
+        const m = d.modality ?? "UNKNOWN";
+        u.output[m] = (u.output[m] ?? 0) + (d.tokenCount ?? 0);
+      }
+    }
     if (msg.sessionResumptionUpdate?.resumable && msg.sessionResumptionUpdate.newHandle) {
       resumeHandleRef.current = msg.sessionResumptionUpdate.newHandle;
     }
@@ -169,7 +191,7 @@ export function Trainer({
     await fetch(`/api/sessions/${id}/end`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcript: transcriptRef.current }),
+      body: JSON.stringify({ transcript: transcriptRef.current, usage: usageRef.current }),
     });
     if (redirect) {
       router.push(`/sessions/${id}`);
@@ -179,6 +201,7 @@ export function Trainer({
     sessionIdRef.current = null;
     resumeHandleRef.current = null;
     transcriptRef.current = [];
+    usageRef.current = { turns: 0, input: {}, output: {}, max_prompt_tokens: 0 };
     timersRef.current = [];
     endingRef.current = false;
     setTranscript([]);
@@ -192,7 +215,9 @@ export function Trainer({
         endingRef.current = true;
         navigator.sendBeacon(
           `/api/sessions/${sessionIdRef.current}/end`,
-          new Blob([JSON.stringify({ transcript: transcriptRef.current })], { type: "application/json" }),
+          new Blob([JSON.stringify({ transcript: transcriptRef.current, usage: usageRef.current })], {
+            type: "application/json",
+          }),
         );
       }
     };

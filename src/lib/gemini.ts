@@ -2,9 +2,34 @@ import "server-only";
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { Scenario } from "@/lib/scenarios";
 
-export const LIVE_MODEL =
-  process.env.GEMINI_LIVE_MODEL ?? "gemini-2.5-flash-native-audio-preview-12-2025";
+export const LIVE_MODEL = process.env.GEMINI_LIVE_MODEL ?? "gemini-3.1-flash-live-preview";
 export const EVAL_MODEL = process.env.GEMINI_EVAL_MODEL ?? "gemini-2.5-flash";
+
+// Ceny v USD za 1M tokenov (cenník Gemini API, október 2026).
+// Pri zmene modelu treba aktualizovať.
+const LIVE_PRICES = {
+  input: { AUDIO: 3, TEXT: 0.75 },
+  output: { AUDIO: 12, TEXT: 4.5 },
+} as const;
+const EVAL_PRICES = { input: 0.3, output: 2.5 } as const;
+
+// Súhrn tokenov z Gemini Live podľa modality (AUDIO, TEXT, ...)
+export type LiveUsage = {
+  turns: number;
+  input: Record<string, number>;
+  output: Record<string, number>;
+  // Najväčší prompt jednej výmeny – ak rastie s dĺžkou rozhovoru, Gemini účtuje aj kontext
+  max_prompt_tokens: number;
+};
+
+export function liveCostUsd(usage: LiveUsage) {
+  const price = (table: Record<string, number>, modality: string) =>
+    table[modality] ?? Math.max(...Object.values(table)); // neznáma modalita → konzervatívne
+  let cost = 0;
+  for (const [m, n] of Object.entries(usage.input)) cost += (n * price(LIVE_PRICES.input, m)) / 1e6;
+  for (const [m, n] of Object.entries(usage.output)) cost += (n * price(LIVE_PRICES.output, m)) / 1e6;
+  return cost;
+}
 
 function client(apiVersion?: string) {
   return new GoogleGenAI({
@@ -93,13 +118,15 @@ const EVALUATION_SCHEMA = {
   ],
 };
 
+export type EvalUsage = { input_tokens: number; output_tokens: number };
+
 export async function evaluateSession(opts: {
   scenario: Scenario;
   difficulty: string;
   customContext?: string | null;
   transcript: TranscriptEntry[];
   previousScores: number[];
-}): Promise<Evaluation> {
+}): Promise<{ evaluation: Evaluation; usage: EvalUsage; costUsd: number }> {
   const dialogue = opts.transcript
     .map((t) => `${t.role === "user" ? "POUŽÍVATEĽ" : "PARTNER"}: ${t.text}`)
     .join("\n");
@@ -125,5 +152,13 @@ export async function evaluateSession(opts: {
     config: { responseMimeType: "application/json", responseJsonSchema: EVALUATION_SCHEMA },
   });
   if (!res.text) throw new Error("Prázdne vyhodnotenie");
-  return JSON.parse(res.text) as Evaluation;
+  const usage: EvalUsage = {
+    input_tokens: res.usageMetadata?.promptTokenCount ?? 0,
+    // Thinking tokeny sa účtujú ako výstup
+    output_tokens:
+      (res.usageMetadata?.candidatesTokenCount ?? 0) + (res.usageMetadata?.thoughtsTokenCount ?? 0),
+  };
+  const costUsd =
+    (usage.input_tokens * EVAL_PRICES.input + usage.output_tokens * EVAL_PRICES.output) / 1e6;
+  return { evaluation: JSON.parse(res.text) as Evaluation, usage, costUsd };
 }
