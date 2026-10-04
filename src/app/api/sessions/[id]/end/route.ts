@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getScenario } from "@/lib/scenarios";
+import { getKnowhow } from "@/lib/knowhow";
 import { evaluateSession, liveCostUsd, type LiveUsage, type TranscriptEntry } from "@/lib/gemini";
 
 // Pod toto množstvo reči používateľa nemá vyhodnotenie zmysel
@@ -93,6 +94,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const { evaluation, usage: evalUsage, costUsd } = await evaluateSession({
       scenario,
+      knowhow: await getKnowhow(scenario.id),
       difficulty: session.difficulty,
       customContext: session.custom_context,
       transcript: session.transcript,

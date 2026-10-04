@@ -146,6 +146,7 @@ export function buildSystemInstruction(
   scenario: Scenario,
   difficulty: Difficulty,
   customContext?: string | null,
+  partnerGuide?: string,
 ) {
   return [
     "Si AI tréningový partner aplikácie Strhni Dav, ktorá pomáha ľuďom trénovať charizmu a komunikáciu.",
@@ -153,6 +154,7 @@ export function buildSystemInstruction(
     "Hovor výhradne po slovensky, prirodzene a hovorovo, ako skutočný človek. Odpovedaj stručne (1–3 vety), aby mal používateľ priestor rozprávať.",
     `ROLA: ${scenario.persona}`,
     `NÁROČNOSŤ: ${DIFFICULTIES[difficulty].instruction}`,
+    partnerGuide ? `POKYNY K SPRÁVANIU V ROLE: ${partnerGuide}` : "",
     customContext ? `DOPLŇUJÚCI KONTEXT OD POUŽÍVATEĽA: ${customContext}` : "",
     "Začni rozhovor ty – krátkym, prirodzeným otvorením, ktoré zodpovedá situácii.",
   ]

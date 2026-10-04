@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED = ["/dashboard", "/train", "/sessions"];
+const PROTECTED = ["/dashboard", "/train", "/sessions", "/admin"];
 
 // Obnovuje Supabase session v cookies a chráni privátne stránky
 export async function proxy(request: NextRequest) {

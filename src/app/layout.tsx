@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { getUser } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/knowhow";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin", "latin-ext"] });
@@ -26,6 +27,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <div className="flex items-center gap-5 text-sm">
                 <Link href="/train" className="hover:text-amber-300">Tréning</Link>
                 <Link href="/dashboard" className="hover:text-amber-300">Môj progres</Link>
+                {isAdmin(user.email) && (
+                  <Link href="/admin" className="text-amber-400 hover:text-amber-300">Admin</Link>
+                )}
                 <form action="/auth/signout" method="post">
                   <button className="text-zinc-400 hover:text-zinc-200">Odhlásiť</button>
                 </form>

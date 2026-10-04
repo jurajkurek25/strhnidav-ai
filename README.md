@@ -62,6 +62,20 @@ from training_sessions where live_usage is not null order by duration_seconds;
 Spotrebu Live API hlási prehliadač (spojenie ide priamo na Gemini), preto slúži na analytiku,
 nie na účtovanie – čas sa účtuje vždy na serveri. Ceny za tokeny sú v `src/lib/gemini.ts`.
 
+## Admin – knowhow
+
+Na `/admin` (prístup majú iba e-maily z `ADMIN_EMAILS`) píšeš svoju metodiku pre
+„Všeobecné“ a pre každý scenár:
+
+- **Hodnotiace kritériá** – jedno na riadok, nahradia predvolené kategórie scenára.
+- **Knowhow pre vyhodnotenie** – metóda, rubrika 10/10 vs. 3/10, chyby, príklady, cvičenia.
+  Ide iba do vyhodnotenia (lacný textový model), dĺžka nevadí.
+- **Pokyny pre AI partnera** – krátke pravidlá správania v role. Idú do hlasového rozhovoru,
+  kde sa platia pri každej výmene, preto ich drž stručné.
+
+Všeobecné knowhow sa spája so scenárovým, kritériá scenára majú prednosť. Zmeny platia
+od ďalšieho tréningu.
+
 ## Úpravy
 
 - **Scenáre, role a hodnotiace kritériá:** `src/lib/scenarios.ts`
@@ -78,4 +92,5 @@ nie na účtovanie – čas sa účtuje vždy na serveri. Ceny za tokeny sú v `
 | `src/app/api/stripe/**` | Checkout (predplatné/kredity), portál, webhook |
 | `src/app/dashboard` | Progres, graf skóre, fair-use, kredity, história |
 | `src/app/sessions/[id]` | Detail vyhodnotenia a prepis |
+| `src/app/admin` | Editor knowhow (metodika, kritériá, pokyny pre partnera) |
 | `supabase/migrations` | DB schéma, RLS, účtovanie času (`finalize_session`), kredity (`add_credits`) |

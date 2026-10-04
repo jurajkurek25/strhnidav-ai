@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getScenario } from "@/lib/scenarios";
 import { getUser } from "@/lib/supabase/server";
 import { getUsage, MAX_SESSION_SECONDS } from "@/lib/billing";
+import { getKnowhow } from "@/lib/knowhow";
 import { Trainer } from "./trainer";
 
 export default async function ScenarioPage({ params }: PageProps<"/train/[scenarioId]">) {
@@ -11,14 +12,15 @@ export default async function ScenarioPage({ params }: PageProps<"/train/[scenar
   if (!scenario) notFound();
   const user = await getUser();
   if (!user) redirect("/login");
-  const usage = await getUsage(user.id);
+  const [usage, knowhow] = await Promise.all([getUsage(user.id), getKnowhow(scenario.id)]);
+  const criteria = knowhow.criteria.length ? knowhow.criteria : scenario.criteria;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
       <Link href="/train" className="text-sm text-zinc-400 hover:text-zinc-200">← Späť</Link>
       <h1 className="mt-3 text-3xl font-bold">{scenario.title}</h1>
       <p className="mt-2 text-zinc-400">{scenario.description}</p>
-      <p className="mt-4 text-sm text-zinc-500">Hodnotí sa: {scenario.criteria.join(" · ")}</p>
+      <p className="mt-4 text-sm text-zinc-500">Hodnotí sa: {criteria.join(" · ")}</p>
 
       {usage.availableSeconds < 60 && (
         <div className="mt-6 rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 text-sm">

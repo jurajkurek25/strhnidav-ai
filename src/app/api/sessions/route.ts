@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getUsage, MAX_SESSION_SECONDS, MIN_SESSION_SECONDS } from "@/lib/billing";
 import { buildSystemInstruction, DIFFICULTIES, getScenario, type Difficulty } from "@/lib/scenarios";
 import { createLiveToken, LIVE_MODEL } from "@/lib/gemini";
+import { getKnowhow } from "@/lib/knowhow";
 
 // Spustenie tréningovej session: overí limit, založí záznam a vydá Gemini token
 export async function POST(request: Request) {
@@ -62,8 +63,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { partnerGuide } = await getKnowhow(scenario.id);
     const token = await createLiveToken({
-      systemInstruction: buildSystemInstruction(scenario, difficulty, customContext),
+      systemInstruction: buildSystemInstruction(scenario, difficulty, customContext, partnerGuide),
       voice: scenario.voice,
       allowedSeconds,
     });

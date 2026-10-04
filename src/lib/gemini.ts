@@ -126,6 +126,7 @@ export async function evaluateSession(opts: {
   customContext?: string | null;
   transcript: TranscriptEntry[];
   previousScores: number[];
+  knowhow: { criteria: string[]; evaluationGuide: string };
 }): Promise<{ evaluation: Evaluation; usage: EvalUsage; costUsd: number }> {
   const dialogue = opts.transcript
     .map((t) => `${t.role === "user" ? "POUŽÍVATEĽ" : "PARTNER"}: ${t.text}`)
@@ -136,7 +137,10 @@ export async function evaluateSession(opts: {
     `Scenár: ${opts.scenario.title} – ${opts.scenario.description}`,
     `Náročnosť: ${opts.difficulty}`,
     opts.customContext ? `Kontext od používateľa: ${opts.customContext}` : "",
-    `Hodnotiace kategórie (použi presne tieto, skóre 0–10): ${opts.scenario.criteria.join("; ")}`,
+    `Hodnotiace kategórie (použi presne tieto, skóre 0–10): ${(opts.knowhow.criteria.length ? opts.knowhow.criteria : opts.scenario.criteria).join("; ")}`,
+    opts.knowhow.evaluationGuide
+      ? `METODIKA HODNOTENIA (hodnoť prednostne podľa nej, používaj jej pojmy a odporúčania):\n${opts.knowhow.evaluationGuide}`
+      : "",
     opts.previousScores.length
       ? `Predchádzajúce celkové skóre v tomto scenári (od najstaršieho): ${opts.previousScores.join(", ")}. V zhrnutí krátko spomeň progres.`
       : "",
