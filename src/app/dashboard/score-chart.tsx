@@ -1,7 +1,7 @@
 // Jednoduchý graf vývoja celkového skóre (0–100)
 export function ScoreChart({ scores }: { scores: number[] }) {
   if (scores.length < 2) {
-    return <p className="text-sm text-zinc-500">Graf progresu sa zobrazí po 2 vyhodnotených tréningoch.</p>;
+    return <p className="text-sm text-muted">Graf progresu sa zobrazí po 2 vyhodnotených tréningoch.</p>;
   }
   const w = 600;
   const h = 160;
@@ -13,11 +13,11 @@ export function ScoreChart({ scores }: { scores: number[] }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="h-40 w-full" role="img" aria-label="Vývoj skóre">
       {[25, 50, 75].map((g) => (
-        <line key={g} x1={pad} x2={w - pad} y1={y(g)} y2={y(g)} stroke="#27272a" strokeDasharray="4 4" />
+        <line key={g} x1={pad} x2={w - pad} y1={y(g)} y2={y(g)} stroke="rgba(201,161,48,0.16)" strokeDasharray="4 4" />
       ))}
-      <polyline points={points} fill="none" stroke="#fbbf24" strokeWidth="3" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke="#e8c468" strokeWidth="3" strokeLinejoin="round" />
       {scores.map((s, i) => (
-        <circle key={i} cx={x(i)} cy={y(s)} r="4" fill="#fbbf24">
+        <circle key={i} cx={x(i)} cy={y(s)} r="4" fill="#c9a130">
           <title>{s}</title>
         </circle>
       ))}

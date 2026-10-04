@@ -20,7 +20,7 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   if (state === "sent") {
-    return <p className="mt-6 rounded-lg bg-zinc-900 p-4 text-sm">Skontroluj si e-mail <b>{email}</b> a klikni na odkaz.</p>;
+    return <p className="mt-6 rounded-sm bg-card p-4 text-sm">Skontroluj si e-mail <b>{email}</b> a klikni na odkaz.</p>;
   }
 
   return (
@@ -31,15 +31,15 @@ export function LoginForm({ next }: { next: string }) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tvoj@email.sk"
-        className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 outline-none focus:border-amber-400"
+        className="field"
       />
       <button
         disabled={state === "sending"}
-        className="rounded-lg bg-amber-400 px-4 py-3 font-semibold text-zinc-950 disabled:opacity-50"
+        className="btn"
       >
         {state === "sending" ? "Posielam…" : "Poslať odkaz"}
       </button>
-      {state === "error" && <p className="text-sm text-red-400">Nepodarilo sa odoslať e-mail. Skús znova.</p>}
+      {state === "error" && <p className="text-sm text-wine-soft">Nepodarilo sa odoslať e-mail. Skús znova.</p>}
     </form>
   );
 }

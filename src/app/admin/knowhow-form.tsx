@@ -7,7 +7,7 @@ import { saveKnowhow, type SaveState } from "./actions";
 const PARTNER_GUIDE_SOFT_LIMIT = 1500;
 
 const textareaClass =
-  "w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3 text-sm leading-relaxed outline-none focus:border-amber-400";
+  "field text-sm leading-relaxed";
 
 export function KnowhowForm({
   id,
@@ -27,7 +27,7 @@ export function KnowhowForm({
 
       <label className="block">
         <span className="text-sm font-medium">Hodnotiace kritériá</span>
-        <span className="block text-xs text-zinc-500">
+        <span className="block text-xs text-muted">
           Jedno na riadok (ideálne 4–6). Prázdne = {defaultCriteria.length ? "predvolené" : "kritériá zo scenára"}.
         </span>
         <textarea
@@ -41,7 +41,7 @@ export function KnowhowForm({
 
       <label className="block">
         <span className="text-sm font-medium">Knowhow pre vyhodnotenie</span>
-        <span className="block text-xs text-zinc-500">
+        <span className="block text-xs text-muted">
           Tvoja metóda, ako vyzerá 10/10 vs. 3/10, typické chyby, príklady dobrých a zlých viet, cvičenia.
           Dĺžka nie je obmedzená.
         </span>
@@ -56,7 +56,7 @@ export function KnowhowForm({
 
       <label className="block">
         <span className="text-sm font-medium">Pokyny pre AI partnera počas rozhovoru</span>
-        <span className="block text-xs text-zinc-500">
+        <span className="block text-xs text-muted">
           Ako sa má partner správať, aby bol realistický. Krátko – posiela sa pri každej výmene.
         </span>
         <textarea
@@ -68,7 +68,7 @@ export function KnowhowForm({
           className={`mt-2 ${textareaClass}`}
         />
         <span
-          className={`text-xs ${partnerGuide.length > PARTNER_GUIDE_SOFT_LIMIT ? "text-amber-400" : "text-zinc-500"}`}
+          className={`text-xs ${partnerGuide.length > PARTNER_GUIDE_SOFT_LIMIT ? "text-gold" : "text-muted"}`}
         >
           {partnerGuide.length} znakov
           {partnerGuide.length > PARTNER_GUIDE_SOFT_LIMIT && " – dlhé pokyny zvyšujú náklady na rozhovor"}
@@ -78,11 +78,11 @@ export function KnowhowForm({
       <div className="flex items-center gap-4">
         <button
           disabled={pending}
-          className="rounded-lg bg-amber-400 px-5 py-2 font-semibold text-zinc-950 disabled:opacity-50"
+          className="btn"
         >
           {pending ? "Ukladám…" : "Uložiť"}
         </button>
-        {state && <span className={`text-sm ${state.ok ? "text-green-400" : "text-red-400"}`}>{state.message}</span>}
+        {state && <span className={`text-sm ${state.ok ? "text-good" : "text-wine-soft"}`}>{state.message}</span>}
       </div>
     </form>
   );

@@ -17,17 +17,18 @@ export default async function ScenarioPage({ params }: PageProps<"/train/[scenar
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/train" className="text-sm text-zinc-400 hover:text-zinc-200">← Späť</Link>
-      <h1 className="mt-3 text-3xl font-bold">{scenario.title}</h1>
-      <p className="mt-2 text-zinc-400">{scenario.description}</p>
-      <p className="mt-4 text-sm text-zinc-500">Hodnotí sa: {criteria.join(" · ")}</p>
+      <Link href="/train" className="text-sm text-muted hover:text-cream">← Späť</Link>
+      <div className="eyebrow mt-6">Tréning</div>
+      <h1 className="text-[clamp(36px,5vw,56px)]">{scenario.title}</h1>
+      <p className="mt-2 text-muted">{scenario.description}</p>
+      <p className="mt-4 text-sm text-muted">Hodnotí sa: {criteria.join(" · ")}</p>
 
       {usage.availableSeconds < 60 && (
-        <div className="mt-6 rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 text-sm">
+        <div className="mt-6 rounded-sm border border-gold/40 bg-gold/10 p-4 text-sm">
           {usage.subscribed
             ? "Dnešný limit 2 hodiny je vyčerpaný. "
             : "Na tréning potrebuješ predplatné alebo kredity. "}
-          <Link href="/dashboard" className="font-semibold text-amber-300 underline">
+          <Link href="/dashboard" className="font-semibold text-gold-bright underline">
             {usage.subscribed ? "Dokúpiť kredity" : "Aktivovať predplatné"}
           </Link>
         </div>

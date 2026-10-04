@@ -30,44 +30,47 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   return (
     <main className="mx-auto max-w-4xl space-y-8 px-4 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Môj progres</h1>
-        <Link href="/train" className="rounded-lg bg-amber-400 px-4 py-2 font-semibold text-zinc-950">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="eyebrow">Dashboard</div>
+          <h1 className="text-[clamp(36px,5vw,56px)]">Môj <em>progres</em></h1>
+        </div>
+        <Link href="/train" className="btn">
           Nový tréning
         </Link>
       </div>
 
       {checkout === "success" && (
-        <p className="rounded-xl bg-green-500/10 p-4 text-sm text-green-300">
+        <p className="rounded-sm bg-good/10 p-4 text-sm text-good">
           Platba prebehla. Aktivácia môže trvať pár sekúnd – ak sa nič nezmenilo, obnov stránku.
         </p>
       )}
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-800 p-4">
-          <p className="text-sm text-zinc-400">Priemerné skóre</p>
-          <p className="mt-1 text-3xl font-bold">{avg ?? "–"}</p>
+        <div className="card p-4">
+          <p className="text-sm text-muted">Priemerné skóre</p>
+          <p className="mt-1 font-display text-4xl font-semibold text-gold-bright">{avg ?? "–"}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 p-4">
-          <p className="text-sm text-zinc-400">Tréningov</p>
-          <p className="mt-1 text-3xl font-bold">{sessions?.length ?? 0}</p>
+        <div className="card p-4">
+          <p className="text-sm text-muted">Tréningov</p>
+          <p className="mt-1 font-display text-4xl font-semibold text-gold-bright">{sessions?.length ?? 0}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 p-4">
-          <p className="text-sm text-zinc-400">Natrénované</p>
-          <p className="mt-1 text-3xl font-bold">{totalMinutes} min</p>
+        <div className="card p-4">
+          <p className="text-sm text-muted">Natrénované</p>
+          <p className="mt-1 font-display text-4xl font-semibold text-gold-bright">{totalMinutes} min</p>
         </div>
       </section>
 
-      <section className="rounded-xl border border-zinc-800 p-5">
-        <h2 className="mb-4 font-semibold">Vývoj skóre</h2>
+      <section className="card p-5">
+        <h2 className="mb-4 text-[22px]">Vývoj skóre</h2>
         <ScoreChart scores={scores} />
       </section>
 
-      <section className="rounded-xl border border-zinc-800 p-5">
-        <h2 className="font-semibold">Predplatné a čas</h2>
+      <section className="card p-5">
+        <h2 className="text-[22px]">Predplatné a čas</h2>
         {usage.subscribed ? (
           <>
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="mt-2 text-sm text-muted">
               Aktívne predplatné
               {usage.profile.subscription_period_end &&
                 ` · obnovenie ${new Date(usage.profile.subscription_period_end).toLocaleDateString("sk-SK")}`}
@@ -79,34 +82,34 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
                   {minutes(usage.usedTodaySeconds)} / {minutes(DAILY_FAIR_USE_SECONDS)} min
                 </span>
               </div>
-              <div className="mt-2 h-2 rounded-full bg-zinc-800">
-                <div className="h-2 rounded-full bg-amber-400" style={{ width: `${usedPct}%` }} />
+              <div className="mt-2 h-2 rounded-full bg-bg-alt">
+                <div className="h-2 rounded-full bg-gold" style={{ width: `${usedPct}%` }} />
               </div>
             </div>
             <form action="/api/stripe/portal" method="post" className="mt-4">
-              <button className="text-sm text-zinc-400 underline hover:text-zinc-200">Spravovať predplatné</button>
+              <button className="text-sm text-muted underline hover:text-cream">Spravovať predplatné</button>
             </form>
           </>
         ) : (
           <form action="/api/stripe/checkout" method="post" className="mt-4">
             <input type="hidden" name="kind" value="subscription" />
-            <button className="rounded-lg bg-amber-400 px-5 py-3 font-semibold text-zinc-950">
+            <button className="btn">
               Aktivovať predplatné – 49 € / mesiac
             </button>
           </form>
         )}
 
-        <div className="mt-6 border-t border-zinc-800 pt-4">
+        <div className="mt-6 border-t border-line pt-4">
           <p className="text-sm">
             Kredity navyše: <b>{minutes(usage.creditSeconds)} min</b>
-            <span className="text-zinc-500"> · použijú sa až po vyčerpaní denného limitu</span>
+            <span className="text-muted"> · použijú sa až po vyčerpaní denného limitu</span>
           </p>
           <div className="mt-3 flex flex-wrap gap-3">
             {CREDIT_PACKS.map((p) => (
               <form key={p.id} action="/api/stripe/checkout" method="post">
                 <input type="hidden" name="kind" value="credits" />
                 <input type="hidden" name="pack" value={p.id} />
-                <button className="rounded-lg border border-zinc-700 px-4 py-2 text-sm hover:border-amber-400">
+                <button className="btn btn-ghost btn-sm">
                   +{p.label} za {(p.priceCents / 100).toLocaleString("sk-SK")} €
                 </button>
               </form>
@@ -116,19 +119,19 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold">História</h2>
-        {!sessions?.length && <p className="text-sm text-zinc-500">Zatiaľ žiadne tréningy.</p>}
-        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800">
+        <h2 className="mb-4 text-[26px]">História</h2>
+        {!sessions?.length && <p className="text-sm text-muted">Zatiaľ žiadne tréningy.</p>}
+        <div className="card divide-y divide-line">
           {sessions?.map((s) => (
-            <Link key={s.id} href={`/sessions/${s.id}`} className="flex items-center justify-between p-4 hover:bg-zinc-900">
+            <Link key={s.id} href={`/sessions/${s.id}`} className="flex items-center justify-between p-4 hover:bg-card">
               <div>
                 <p className="font-medium">{getScenario(s.scenario_id)?.title ?? s.scenario_id}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted">
                   {new Date(s.started_at).toLocaleString("sk-SK", { timeZone: "Europe/Bratislava" })} ·{" "}
                   {minutes(s.duration_seconds ?? 0)} min
                 </p>
               </div>
-              <span className="text-xl font-bold text-amber-400">{s.overall_score ?? "–"}</span>
+              <span className="text-xl font-bold text-gold">{s.overall_score ?? "–"}</span>
             </Link>
           ))}
         </div>

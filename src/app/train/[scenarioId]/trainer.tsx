@@ -233,14 +233,14 @@ export function Trainer({
     return (
       <div className="mt-8 space-y-6">
         <div>
-          <p className="mb-2 text-sm font-medium text-zinc-300">Náročnosť</p>
+          <p className="mb-2 text-sm font-medium text-cream">Náročnosť</p>
           <div className="flex gap-2">
             {DIFFICULTY_OPTIONS.map((d) => (
               <button
                 key={d.id}
                 onClick={() => setDifficulty(d.id)}
-                className={`rounded-lg border px-4 py-2 text-sm ${
-                  difficulty === d.id ? "border-amber-400 bg-amber-400/10 text-amber-300" : "border-zinc-700"
+                className={`rounded-sm border px-4 py-2 text-sm ${
+                  difficulty === d.id ? "border-gold bg-gold/10 text-gold-bright" : "border-line"
                 }`}
               >
                 {d.label}
@@ -249,7 +249,7 @@ export function Trainer({
           </div>
         </div>
         <div>
-          <p className="mb-2 text-sm font-medium text-zinc-300">
+          <p className="mb-2 text-sm font-medium text-cream">
             {isCustom ? "Opíš situáciu a rolu partnera" : "Doplňujúci kontext (nepovinné)"}
           </p>
           <textarea
@@ -262,18 +262,18 @@ export function Trainer({
                 ? "Napr. Som realitný maklér, volám klientovi, ktorý zvažuje predaj bytu…"
                 : "Napr. hlásim sa na pozíciu junior marketéra"
             }
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3 text-sm outline-none focus:border-amber-400"
+            className="field text-sm"
           />
         </div>
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-wine-soft">{error}</p>}
         <button
           onClick={start}
           disabled={phase === "connecting" || availableSeconds < 60}
-          className="w-full rounded-xl bg-amber-400 px-6 py-4 text-lg font-semibold text-zinc-950 disabled:opacity-50"
+          className="btn w-full py-4 text-lg"
         >
           {phase === "connecting" ? "Pripájam…" : "Začať rozhovor"}
         </button>
-        <p className="text-center text-xs text-zinc-500">
+        <p className="text-center text-xs text-muted">
           Dostupný čas: {formatTime(availableSeconds)} · Použi slúchadlá pre najlepší zážitok
         </p>
       </div>
@@ -283,48 +283,48 @@ export function Trainer({
   if (phase === "evaluating") {
     return (
       <div className="mt-16 flex flex-col items-center gap-4 text-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-400 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />
         <p className="text-lg font-medium">Vyhodnocujem tvoj rozhovor…</p>
-        <p className="text-sm text-zinc-400">Zvyčajne to trvá do 20 sekúnd.</p>
+        <p className="text-sm text-muted">Zvyčajne to trvá do 20 sekúnd.</p>
       </div>
     );
   }
 
   return (
     <div className="mt-6 flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-4 rounded-2xl bg-zinc-900 p-8">
+      <div className="card flex flex-col items-center gap-4 p-8">
         <div
           className={`flex h-28 w-28 items-center justify-center rounded-full transition-all ${
-            aiSpeaking ? "bg-amber-400/30 ring-4 ring-amber-400" : "bg-zinc-800"
+            aiSpeaking ? "bg-gold/30 ring-4 ring-gold" : "bg-bg-alt"
           }`}
           style={{ transform: `scale(${aiSpeaking ? 1.05 : 1 + Math.min(micLevel * 3, 0.25)})` }}
         >
           <span className="text-sm font-medium">{aiSpeaking ? "Hovorí AI" : muted ? "Stlmené" : "Počúvam"}</span>
         </div>
-        <p className={`font-mono text-2xl ${remaining < 60 ? "text-red-400" : ""}`}>{formatTime(remaining)}</p>
+        <p className={`font-mono text-2xl ${remaining < 60 ? "text-wine-soft" : ""}`}>{formatTime(remaining)}</p>
         <div className="flex gap-3">
           <button
             onClick={() => {
               micRef.current?.setMuted(!muted);
               setMuted(!muted);
             }}
-            className="rounded-lg border border-zinc-700 px-4 py-2 text-sm"
+            className="btn btn-ghost btn-sm"
           >
             {muted ? "Zapnúť mikrofón" : "Stlmiť"}
           </button>
-          <button onClick={() => void finish()} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold">
+          <button onClick={() => void finish()} className="btn btn-danger btn-sm">
             Ukončiť a vyhodnotiť
           </button>
         </div>
       </div>
 
-      <div className="max-h-[40vh] space-y-3 overflow-y-auto rounded-2xl border border-zinc-800 p-4">
-        {transcript.length === 0 && <p className="text-sm text-zinc-500">Tu sa zobrazí prepis rozhovoru…</p>}
+      <div className="card max-h-[40vh] space-y-3 overflow-y-auto p-4">
+        {transcript.length === 0 && <p className="text-sm text-muted">Tu sa zobrazí prepis rozhovoru…</p>}
         {transcript.map((t, i) => (
           <div key={i} className={`flex ${t.role === "user" ? "justify-end" : "justify-start"}`}>
             <p
-              className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                t.role === "user" ? "bg-amber-400 text-zinc-950" : "bg-zinc-800"
+              className={`max-w-[80%] rounded-sm px-4 py-2 text-sm ${
+                t.role === "user" ? "bg-gold text-bg" : "bg-bg-alt"
               }`}
             >
               {t.text}

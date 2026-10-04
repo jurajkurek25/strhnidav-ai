@@ -15,7 +15,7 @@ export function RetryEvaluation({ sessionId }: { sessionId: string }) {
         router.refresh();
         setBusy(false);
       }}
-      className="ml-3 text-amber-300 underline disabled:opacity-50"
+      className="ml-3 text-gold-bright underline disabled:opacity-50"
     >
       {busy ? "Vyhodnocujem…" : "Skúsiť vyhodnotiť znova"}
     </button>
