@@ -45,6 +45,41 @@ Supabase (auth, profily, sessions, kredity)        Stripe (predplatné, kredity,
      Lokálne: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 5. `npm run dev` a otvor http://localhost:3000 (mikrofón funguje na `localhost` alebo cez HTTPS).
 
+## Nasadenie na ai.strhnidav.sk (CloudPanel)
+
+**1. V CloudPanel** pridaj stránku typu **Node.js**: doména `ai.strhnidav.sk`, Node.js 22,
+App Port `3000`. Zapni SSL (Let's Encrypt).
+
+**2. Prvé nasadenie** (cez SSH ako používateľ stránky):
+
+```bash
+cd /home/strhnidav-ai/htdocs/ai.strhnidav.sk
+git clone https://github.com/jurajkurek25/strhnidav-ai.git .   # priečinok musí byť prázdny
+git checkout claude/affectionate-feynman-o6ot5n                 # alebo main po zlúčení
+cp .env.example .env.local && nano .env.local                   # vyplň hodnoty
+npm install -g pm2   # ak PM2 ešte nie je
+./deploy.sh
+pm2 startup          # aby appka nabehla aj po reštarte servera (vypíše príkaz na spustenie)
+```
+
+**3. Každá ďalšia verzia:**
+
+```bash
+cd /home/strhnidav-ai/htdocs/ai.strhnidav.sk && ./deploy.sh
+```
+
+`deploy.sh` urobí `git pull`, `npm ci`, `npm run build` a reštart cez PM2 bez výpadku.
+Premenné `NEXT_PUBLIC_*` sa vkladajú pri builde – po ich zmene v `.env.local` treba znova `./deploy.sh`.
+
+**4. Nastavenia služieb pre produkciu:**
+
+- `.env.local`: `NEXT_PUBLIC_APP_URL=https://ai.strhnidav.sk`, `ADMIN_EMAILS=…`
+- Supabase → Authentication → URL Configuration: Site URL `https://ai.strhnidav.sk`,
+  Redirect URL `https://ai.strhnidav.sk/auth/callback`
+- Stripe → Webhooks: `https://ai.strhnidav.sk/api/stripe/webhook` (udalosti vyššie),
+  jeho Signing secret do `STRIPE_WEBHOOK_SECRET`
+- Mikrofón v prehliadači funguje iba cez HTTPS – SSL musí byť zapnuté.
+
 ## Meranie nákladov
 
 Ku každej session sa ukladá spotreba tokenov z Gemini Live (`live_usage`, `live_cost_usd`)
